@@ -9,7 +9,7 @@ const router = new Router()
 
 router.post('/image', upload.single('image'), async (req, res, next) => {
   if (req.file) {
-    await uploadImg(req.file.path, 'newimage.jpg')
+    await uploadImg(req.file.buffer, 'newimage.jpg')
     const imgURL = await getImgURL()
     const guess = await predictImage(imgURL)
     res.send(guess)
