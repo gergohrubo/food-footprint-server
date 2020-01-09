@@ -1,7 +1,9 @@
 const predictImage = require('./clarifai/predictImage')
-const getImagesFromAWS = require('./aws/s3storage')
+const { getImgURL, uploadImg } = require('./aws/s3storage')
 
-getImagesFromAWS()
+getImgURL()
   .then(url => predictImage(url))
   .then(guess => console.log('the guess is', guess))
   .catch(error => console.error(error))
+
+uploadImg('./images/orange.jpg', 'orange.jpg')
