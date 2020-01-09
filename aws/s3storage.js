@@ -1,6 +1,5 @@
 const aws = require('aws-sdk')
 const dotenv = require('dotenv')
-const fs = require('fs');
 
 dotenv.config()
 
@@ -22,9 +21,8 @@ async function getImgURL() {
   }
 }
 
-async function uploadImg(imgSrc, imgName) {
+async function uploadImg(fileBuffer, imgName) {
   try {
-    const fileContent = fs.readFileSync(imgSrc);
     const s3 = new aws.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY,
       secretAccessKey: process.env.AWS_SECRET_KEY
@@ -32,7 +30,7 @@ async function uploadImg(imgSrc, imgName) {
     await s3.upload({
       Bucket: process.env.BUCKET_NAME,
       Key: imgName,
-      Body: fileContent,
+      Body: fileBuffer,
       ACL: "public-read-write"
     }).promise()
   }
