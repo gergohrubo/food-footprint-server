@@ -15,7 +15,7 @@ async function getImgURL() {
       Bucket: bucket
     }).promise()
     console.log('the contents:', response)
-    const url = `http://${bucket}.s3.eu-central-1.amazonaws.com/${response.Contents[1].Key}`
+    const url = `http://${bucket}.s3.eu-central-1.amazonaws.com/${response.Contents[0].Key}`
     return url
   } catch (error) {
     console.error(error)
@@ -23,22 +23,22 @@ async function getImgURL() {
 }
 
 async function uploadImg(imgSrc, imgName) {
-  const fileContent = fs.readFileSync(imgSrc);
-  const s3 = new aws.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY
-  })
-  s3.upload({
-    Bucket: process.env.BUCKET_NAME,
-    Key: imgName,
-    Body: fileContent,
-    ACL: "public-read-write"
-  }, function (err, data) {
-    if (err) {
-      throw err;
-    }
-    console.log(`File uploaded successfully. ${data.Location}`);
-  })
+  try {
+    const fileContent = fs.readFileSync(imgSrc);
+    const s3 = new aws.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY
+    })
+    await s3.upload({
+      Bucket: process.env.BUCKET_NAME,
+      Key: imgName,
+      Body: fileContent,
+      ACL: "public-read-write"
+    }).promise()
+  }
+  catch (error) {
+    console.error(error)
+  }
 }
 
 module.exports = { getImgURL, uploadImg }

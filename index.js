@@ -1,9 +1,19 @@
-const predictImage = require('./clarifai/predictImage')
-const { getImgURL, uploadImg } = require('./aws/s3storage')
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-getImgURL()
-  .then(url => predictImage(url))
-  .then(guess => console.log('the guess is', guess))
-  .catch(error => console.error(error))
+const imageRouter = require('./image/router')
 
-uploadImg('./images/orange.jpg', 'orange.jpg')
+const app = express();
+
+const port = process.env.PORT || 4000;
+
+const corsMiddleware = cors();
+const bodyparserMiddleware = bodyParser.json();
+
+app.use(corsMiddleware)
+app.use(bodyparserMiddleware)
+
+app.use(imageRouter)
+
+app.listen(port, () => console.log(`Server listening on port ${port}`))
