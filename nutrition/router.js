@@ -1,5 +1,6 @@
 const { Router } = require('express')
 const multer = require('multer')
+const moment = require('moment')
 const { uploadImg, getImgURL } = require('../apis/aws')
 const predictImage = require('../apis/clarifai')
 const { getNutrition, getRecipe } = require('../apis/spoonacular')
@@ -22,17 +23,24 @@ router.post('/image', upload.single('image'), async (req, res, next) => {
 
 router.post('/ingredients', async (req, res, next) => {
   try {
-    console.log('the req body')
     const ingredientsList = req.body.ingredients.map(ingredient => ingredient.name)
-    const nutritionResponse = await getNutrition(ingredientsList)
-    const recipeResponse = await getRecipe(ingredientsList)
+    const [nutritionResponse, recipeResponse] = await Promise.all([getNutrition(ingredientsList), getRecipe(ingredientsList)])
     const nutritionData = nutritionResponse.body
-    console.log('the nutrition array', nutritionData)
     const recipeData = recipeResponse.body
-    const nutritionArray = compoundNutrition(nutritionData)
-    console.log('the recipe data', recipeData)
-    console.log('the nutrition array', nutritionArray)
-    res.send([nutritionArray, nutritionData, recipeData])
+    const nutritionObject = compoundNutrition(nutritionData)
+    const mealObject = {
+      title: recipeData[0]['title'],
+      ingredients: [...nutritionData]
+    }
+    const newDBRow = {
+      userId: 1,
+      date: moment(),
+      nutrients: { ...nutritionObject },
+      meals: mealObject
+    }
+    const nutritionLog = new Nutrition(newDBRow)
+    await nutritionLog.save()
+    res.send([nutritionObject, nutritionData, recipeData])
   } catch (error) {
     console.error(error)
   }
@@ -40,20 +48,21 @@ router.post('/ingredients', async (req, res, next) => {
 
 function compoundNutrition(ingredientArray) {
   const nutritionArrays = ingredientArray.map(ingredient => ingredient.nutrition.nutrients)
-  console.log('the ingredient array in the function', ingredientArray)
-  console.log('the nutrition array in the function', nutritionArrays)
-  const nutritionArray = nutritionArrays.reduce((acc, ingredient) => {
+  const nutritionObject = nutritionArrays.reduce((acc, ingredient) => {
     ingredient.forEach(nutrient => {
-      const index = acc.findIndex(accItem => accItem.title === nutrient.title)
-      if (index === -1) {
-        acc = [...acc, { ...nutrient }]
+      if (acc.hasOwnProperty(nutrient.title)) {
+        acc[nutrient.title]['amount'] += nutrient['amount']
+        acc[nutrient.title]['percentOfDailyNeeds'] += nutrient['percentOfDailyNeeds']
       } else {
-        acc[index]['amount'] += nutrient['amount']
+        acc[nutrient.title] = {
+          amount: nutrient['amount'],
+          percentOfDailyNeeds: nutrient['percentOfDailyNeeds']
+        }
       }
     })
     return acc
-  }, [])
-  return nutritionArray
+  }, {})
+  return nutritionObject
 }
 
 module.exports = router

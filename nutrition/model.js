@@ -9,8 +9,12 @@ const nutritionSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  nutrition: {
-    type: Array,
+  nutrients: {
+    type: {},
+    required: true
+  },
+  meals: {
+    type: [{}],
     required: true
   }
 });
