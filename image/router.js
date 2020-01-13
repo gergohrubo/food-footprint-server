@@ -1,7 +1,7 @@
 const { Router } = require('express')
 const multer = require('multer')
-const { uploadImg, getImgURL } = require('../aws/s3storage')
-const predictImage = require('../clarifai/predictImage')
+const { uploadImg, getImgURL } = require('../apis/aws')
+const predictImage = require('../apis/clarifai')
 
 const upload = multer()
 

@@ -6,6 +6,7 @@ const connectDb = require("./db")
 
 const userRouter = require('./user/router')
 const imageRouter = require('./image/router')
+const ingredientRouter = require('./apis/spoonacular')
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(bodyparserMiddleware)
 
 app.use(userRouter)
 app.use(imageRouter)
+app.use(ingredientRouter)
 
 app.get("/", async (req, res) => {
   console.log("got a get request on /");
