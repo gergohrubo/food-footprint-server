@@ -5,8 +5,7 @@ const bodyParser = require("body-parser");
 const connectDb = require("./db")
 
 const userRouter = require('./user/router')
-const imageRouter = require('./image/router')
-const ingredientRouter = require('./apis/spoonacular')
+const nutritionRouter = require('./nutrition/router')
 
 const app = express();
 
@@ -19,8 +18,7 @@ app.use(corsMiddleware)
 app.use(bodyparserMiddleware)
 
 app.use(userRouter)
-app.use(imageRouter)
-app.use(ingredientRouter)
+app.use(nutritionRouter)
 
 app.get("/", async (req, res) => {
   console.log("got a get request on /");
