@@ -59,18 +59,39 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
     const nutritionData = nutritionResponse.body
     const recipeData = recipeResponse.body
     const nutritionObject = compoundNutrition(nutritionData)
-    const mealObject = {
-      title: recipeData[0]['title'],
-      ingredients: [...nutritionData]
+    const { imageName } = req.body
+    const start = moment().startOf('day')
+    const end = moment().endOf('day')
+    const entry = await Nutrition.findOne({ userId: req.user._id, date: { '$gte': start, '$lt': end } })
+    entry.meals = entry.meals.map(meal => {
+      if (meal.imageName === imageName) {
+        return {
+          imageName,
+          recipeName: recipeData[0]['title'],
+          ingredients: nutritionData,
+        }
+      }
+      return {
+        ...meal
+      }
+    })
+    if (entry.nutrients) {
+      const nutrientsMut = { ...entry.nutrients }
+      for (let key in nutritionObject) {
+        if (nutrientsMut.hasOwnProperty(key)) {
+          nutrientsMut[key]['amount'] += nutritionObject[key]['amount']
+          nutrientsMut[key]['percentOfDailyNeeds'] += nutritionObject[key]['percentOfDailyNeeds']
+        } else {
+          nutrientsMut[key]['amount'] = nutritionObject[key]['amount']
+          nutrientsMut[key]['percentOfDailyNeeds'] = nutritionObject[key]['percentOfDailyNeeds']
+        }
+      }
+      entry.nutrients = { ...nutrientsMut }
+    } else {
+      entry.nutrients = { ...nutritionObject }
     }
-    const newDBRow = {
-      userId: 1,
-      date: moment(),
-      nutrients: { ...nutritionObject },
-      meals: mealObject
-    }
-    const nutritionLog = new Nutrition(newDBRow)
-    await nutritionLog.save()
+    entry.markModified('nutrients')
+    await entry.save()
     res.send([nutritionObject, nutritionData, recipeData])
   } catch (error) {
     console.error(error)
