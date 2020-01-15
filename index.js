@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-const imageRouter = require('./image/router')
+const connectDb = require("./db")
+
+const userRouter = require('./user/router')
+const nutritionRouter = require('./nutrition/router')
 
 const app = express();
 
@@ -14,6 +17,18 @@ const bodyparserMiddleware = bodyParser.json();
 app.use(corsMiddleware)
 app.use(bodyparserMiddleware)
 
-app.use(imageRouter)
+app.use(userRouter)
+app.use(nutritionRouter)
 
-app.listen(port, () => console.log(`Server listening on port ${port}`))
+app.get("/", async (req, res) => {
+  console.log("got a get request on /");
+  res.json({ status: 'server running' });
+});
+
+app.listen(port, () => console.log(`Server listening on port ${port} v1.1`))
+
+connectDb()
+  .then(() => {
+    console.log("MongoDb connected");
+  })
+  .catch(console.error)
