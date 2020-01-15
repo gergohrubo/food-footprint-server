@@ -4,7 +4,7 @@ const moment = require('moment')
 const { uploadImg, getImg } = require('../apis/aws')
 const authMiddleware = require('../auth/middleware')
 const predictImage = require('../apis/clarifai')
-const { getNutrition, getRecipe } = require('../apis/spoonacular')
+const { getNutrition, getRecipe, getRecommendedMeal } = require('../apis/spoonacular')
 const Nutrition = require('./model')
 
 const upload = multer()
@@ -135,6 +135,20 @@ router.post('/diary', authMiddleware, async (req, res, next) => {
   }
 })
 
+router.post('/suggest', authMiddleware, async (req, res, next) => {
+  try {
+    const { date, nutrientsArray } = req.body
+    const start = moment(date).startOf('day')
+    const end = moment(date).endOf('day')
+    const entry = await Nutrition.findOne({ userId: req.user._id, date: { '$gte': start, '$lt': end } })
+    const requiredAmounts = nutrientsArray.map(nutrient => `min${nutrient.replace(/\s+/g, '')}=${calculateRequiredAmount(nutrient, entry.nutrients)}`)
+    const suggestions = await getRecommendedMeal(requiredAmounts)
+    res.send(suggestions.body)
+  } catch (error) {
+    console.error(error)
+  }
+})
+
 function compoundNutrition(ingredientArray) {
   const nutritionArrays = ingredientArray.map(ingredient => ingredient.nutrition.nutrients)
   const nutritionObject = nutritionArrays.reduce((acc, ingredient) => {
@@ -153,6 +167,14 @@ function compoundNutrition(ingredientArray) {
     return acc
   }, {})
   return nutritionObject
+}
+
+function calculateRequiredAmount(nutrientKey, nutrients) {
+  if (nutrients[nutrientKey]['percentOfDailyNeeds'] > 100) {
+    return 0
+  }
+  const remainingPercentage = 100 - nutrients[nutrientKey]['percentOfDailyNeeds']
+  return remainingPercentage * (nutrients[nutrientKey]['amount'] / nutrients[nutrientKey]['percentOfDailyNeeds'])
 }
 
 module.exports = router

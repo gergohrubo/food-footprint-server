@@ -31,4 +31,16 @@ async function getRecipe(ingredientsArray) {
   }
 }
 
-module.exports = { getNutrition, getRecipe }
+async function getRecommendedMeal(requiredNutrients) {
+  try {
+    const baseUrl = `https://api.spoonacular.com/recipes/findByNutrients?apiKey=${process.env.SPOONACULAR_API_KEY}`
+    const ingredientsQuery = requiredNutrients.reduce((acc, item) => acc += `&${item}`)
+    const url = baseUrl + '&' + ingredientsQuery + '&number=10&random=true'
+    const res = await request.get(url)
+    return res
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+module.exports = { getNutrition, getRecipe, getRecommendedMeal }
