@@ -84,6 +84,7 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
         } else {
           nutrientsMut[key]['amount'] = nutritionObject[key]['amount']
           nutrientsMut[key]['percentOfDailyNeeds'] = nutritionObject[key]['percentOfDailyNeeds']
+          nutrientsMut[key]['unit'] = nutritionObject[key]['unit']
         }
       }
       entry.nutrients = { ...nutrientsMut }
@@ -132,7 +133,8 @@ function compoundNutrition(ingredientArray) {
       } else {
         acc[nutrient.title] = {
           amount: nutrient['amount'],
-          percentOfDailyNeeds: nutrient['percentOfDailyNeeds']
+          percentOfDailyNeeds: nutrient['percentOfDailyNeeds'],
+          unit: nutrient['unit']
         }
       }
     })
