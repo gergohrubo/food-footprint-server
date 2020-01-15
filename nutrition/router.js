@@ -1,7 +1,7 @@
 const { Router } = require('express')
 const multer = require('multer')
 const moment = require('moment')
-const { uploadImg } = require('../apis/aws')
+const { uploadImg, getImg } = require('../apis/aws')
 const authMiddleware = require('../auth/middleware')
 const predictImage = require('../apis/clarifai')
 const { getNutrition, getRecipe } = require('../apis/spoonacular')
@@ -118,6 +118,18 @@ router.post('/title', authMiddleware, async (req, res, next) => {
     })
     await entry.save()
     res.send('title changed')
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+router.post('/diary', authMiddleware, async (req, res, next) => {
+  try {
+    const { date } = req.body
+    const start = moment(date).startOf('day')
+    const end = moment(date).endOf('day')
+    const entry = await Nutrition.findOne({ userId: req.user._id, date: { '$gte': start, '$lt': end } })
+    res.send(entry)
   } catch (error) {
     console.error(error)
   }
