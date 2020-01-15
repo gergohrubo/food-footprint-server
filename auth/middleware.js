@@ -7,7 +7,7 @@ function auth(req, res, next) {
     try {
       const data = toData(auth[1])
       User
-        .findByPk(data.userId)
+        .findById(data.userId)
         .then(user => {
           if (!user) return next('User does not exist')
 
