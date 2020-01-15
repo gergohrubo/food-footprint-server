@@ -98,6 +98,30 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
   }
 })
 
+router.post('/title', authMiddleware, async (req, res, next) => {
+  try {
+    const { imageName, recipeName } = req.body
+    const start = moment().startOf('day')
+    const end = moment().endOf('day')
+    const entry = await Nutrition.findOne({ userId: req.user._id, date: { '$gte': start, '$lt': end } })
+    entry.meals = entry.meals.map(meal => {
+      if (meal.imageName === imageName) {
+        return {
+          ...meal,
+          recipeName
+        }
+      }
+      return {
+        ...meal
+      }
+    })
+    await entry.save()
+    res.send('title changed')
+  } catch (error) {
+    console.error(error)
+  }
+})
+
 function compoundNutrition(ingredientArray) {
   const nutritionArrays = ingredientArray.map(ingredient => ingredient.nutrition.nutrients)
   const nutritionObject = nutritionArrays.reduce((acc, ingredient) => {
