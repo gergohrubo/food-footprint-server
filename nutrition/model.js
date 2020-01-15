@@ -11,7 +11,7 @@ const nutritionSchema = new mongoose.Schema({
   },
   nutrients: {
     type: {},
-    required: true
+    required: false
   },
   meals: {
     type: [{}],
