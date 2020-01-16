@@ -14,7 +14,6 @@ async function getImg(imgName) {
       Bucket: bucket,
       Key: imgName
     }).promise()
-    console.log('the contents:', response)
     return response
   } catch (error) {
     console.error(error)

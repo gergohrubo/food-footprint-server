@@ -129,6 +129,17 @@ router.post('/diary', authMiddleware, async (req, res, next) => {
     const start = moment(date).startOf('day')
     const end = moment(date).endOf('day')
     const entry = await Nutrition.findOne({ userId: req.user._id, date: { '$gte': start, '$lt': end } })
+    if (!entry) {
+      res.send({ meals: [], nutrients: {} })
+    }
+    const promiseArray = entry.meals.map(async (meal) => {
+      const image = await getImg(meal.imageName)
+      return {
+        ...meal,
+        image: image.Body
+      }
+    })
+    entry.meals = await Promise.all(promiseArray)
     res.send(entry)
   } catch (error) {
     console.error(error)

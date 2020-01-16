@@ -1,5 +1,9 @@
+const dotenv = require('dotenv')
+
+dotenv.config()
+
 const mongoose = require("mongoose");
-const connection = "mongodb://mongo:27017/food";
+const connection = process.env.DATABASE_URI;
 const connectDb = () => {
   return mongoose.connect(connection);
 };
