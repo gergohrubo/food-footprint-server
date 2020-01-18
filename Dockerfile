@@ -9,4 +9,4 @@ RUN npm install -g nodemon
 COPY . .
 #Expose port and start application
 EXPOSE 4000
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "start" ]
