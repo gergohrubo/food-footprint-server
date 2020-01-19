@@ -56,7 +56,7 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
   try {
     const ingredientsList = req.body.ingredients.map(ingredient => ingredient.name)
     const [nutritionResponse, recipeResponse] = await Promise.all([getNutrition(ingredientsList), getRecipe(ingredientsList)])
-    const nutritionData = nutritionResponse.body
+    const nutritionData = nutritionResponse.body.filter(ingredient => ingredient.hasOwnProperty('nutrition'))
     const recipeData = recipeResponse.body
     const nutritionObject = compoundNutrition(nutritionData)
     const { imageName } = req.body
