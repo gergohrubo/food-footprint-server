@@ -56,7 +56,7 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
   try {
     const ingredientsList = req.body.ingredients.map(ingredient => ingredient.name)
     const [nutritionResponse, recipeResponse] = await Promise.all([getNutrition(ingredientsList), getRecipe(ingredientsList)])
-    const nutritionData = nutritionResponse.body.filter(ingredient => ingredient.hasOwnProperty('nutrition'))
+    const nutritionData = nutritionResponse.body
     const recipeData = recipeResponse.body
     const nutritionObject = compoundNutrition(nutritionData)
     const { imageName } = req.body
@@ -82,11 +82,9 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
           nutrientsMut[key]['amount'] += nutritionObject[key]['amount']
           nutrientsMut[key]['percentOfDailyNeeds'] += nutritionObject[key]['percentOfDailyNeeds']
         } else {
-          nutrientsMut[key] = {
-            amount: nutritionObject[key]['amount'],
-            percentOfDailyNeeds: nutritionObject[key]['percentOfDailyNeeds'],
-            unit: nutritionObject[key]['unit']
-          }
+          nutrientsMut[key]['amount'] = nutritionObject[key]['amount']
+          nutrientsMut[key]['percentOfDailyNeeds'] = nutritionObject[key]['percentOfDailyNeeds']
+          nutrientsMut[key]['unit'] = nutritionObject[key]['unit']
         }
       }
       entry.nutrients = { ...nutrientsMut }
