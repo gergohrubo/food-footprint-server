@@ -82,9 +82,11 @@ router.post('/ingredients', authMiddleware, async (req, res, next) => {
           nutrientsMut[key]['amount'] += nutritionObject[key]['amount']
           nutrientsMut[key]['percentOfDailyNeeds'] += nutritionObject[key]['percentOfDailyNeeds']
         } else {
-          nutrientsMut[key]['amount'] = nutritionObject[key]['amount']
-          nutrientsMut[key]['percentOfDailyNeeds'] = nutritionObject[key]['percentOfDailyNeeds']
-          nutrientsMut[key]['unit'] = nutritionObject[key]['unit']
+          nutrientsMut[key] = {
+            amount: nutritionObject[key]['amount'],
+            percentOfDailyNeeds: nutritionObject[key]['percentOfDailyNeeds'],
+            unit: nutritionObject[key]['unit']
+          }
         }
       }
       entry.nutrients = { ...nutrientsMut }
