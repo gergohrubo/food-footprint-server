@@ -70,6 +70,21 @@ feat/some-feature         \_commits_/- pull request
 
 ## How to use
 
-This project is dockerized. After cloning the repository you can run it with the command
+The project is dockerized and published on Docker Hub as an image. To run it together with MongoDB create a `docker-compose.yml` in an empty folder then type `docker-compose up`
 
-`docker-compose up`
+The `docker-compose.yml` file should contain the following (with similar indentation):
+
+```
+version: "2"
+services:
+  web:
+    image: gergohrubo/food-diary
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+```
