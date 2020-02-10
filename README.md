@@ -5,7 +5,7 @@
 
 <h4 align="center">Analyze your meals and keep track of your daily nutrition!</h4>
 
-### This is the backend part of my Food-diary project. You can view the [frontend](https://github.com/gergohrubo/food-footprint-client), or checkout the [deployed version](https://food-app-gh.netlify.com/)
+### This is the backend part of my Food-diary project. You can view the [frontend](https://github.com/gergohrubo/food-footprint-client), or checkout the [deployed version](https://food-diary-gh.netlify.com/)
 
 ## Table of contents
 
